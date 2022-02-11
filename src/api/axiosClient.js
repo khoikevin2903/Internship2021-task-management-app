@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosCLient = axios.create({
-    baseURL: 'https://training-todos-dc1d2-default-rtdb.firebaseio.com/',
+    baseURL: 'https://firestore.googleapis.com/v1/projects/internship-2022/databases/(default)/documents/',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -20,7 +20,7 @@ axiosCLient.interceptors.request.use(
 // Add a response interceptor
 axiosCLient.interceptors.response.use(
     function (response) {
-        return response.data;
+        return response.data.documents;
     },
     function (error) {
         return Promise.reject(error);

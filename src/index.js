@@ -6,17 +6,16 @@ import { store } from './app/store';
 import { Provider } from 'react-redux';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter } from 'react-router-dom';
-import { initializeApp } from "firebase/app";
+import { initializeApp } from 'firebase/app';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBLEECaOWavFsxgwnqr9VnPe6HjUaS7rnU",
-  authDomain: "training-todos-dc1d2.firebaseapp.com",
-  databaseURL: "https://training-todos-dc1d2-default-rtdb.firebaseio.com",
-  projectId: "training-todos-dc1d2",
-  storageBucket: "training-todos-dc1d2.appspot.com",
-  messagingSenderId: "104931018588",
-  appId: "1:104931018588:web:197fa2ed20d54a2367e399",
-  measurementId: "G-4R8VF9NWKN"
+    apiKey: 'AIzaSyAYra19yRgh16x3FzFfnKnm42NG7jGbklk',
+    authDomain: 'internship-2022.firebaseapp.com',
+    projectId: 'internship-2022',
+    storageBucket: 'internship-2022.appspot.com',
+    messagingSenderId: '833584677021',
+    appId: '1:833584677021:web:8375e594d2885d56361474',
+    measurementId: 'G-V3Q36V5WCG',
 };
 
 initializeApp(firebaseConfig);

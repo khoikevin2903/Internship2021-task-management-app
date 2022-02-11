@@ -3,11 +3,20 @@
     padding: 0;
 }
 
+@mixin text-truncate($line) {
+    display: -webkit-box;
+    -webkit-line-clamp: #{$line};
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+}
+
 .list-task {
     display: grid;
     width: 100%;
     height: 100%;
-    grid-template-columns: repeat(auto-fill, 250px);
+    grid-template-columns: repeat(auto-fit, 250px);
     gap: 7px;
 
     &__group {
@@ -34,6 +43,14 @@
             border-radius: 5px;
             color: #282c34;
             transition: all 0.2s linear;
+
+            .title {
+                @include text-truncate(1);
+            }
+
+            .description {
+                @include text-truncate(2);
+            }
 
             .notstarted {
                 color: black;
@@ -85,15 +102,6 @@
                 top: 0;
                 left: 0;
                 opacity: 0.25;
-            }
-
-            .text-truncate {
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                word-break: break-word;
             }
         }
 

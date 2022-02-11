@@ -1,11 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import swal from 'sweetalert';
-import axiosCLient from '../../../api/axiosClient';
+import { deleteTask, updateTask } from '../reducers/taskReducers';
+import { useSelector } from 'react-redux';
+import { sortType } from '../reducers/sortTypeReducers';
 
 function DragNDrop({ data, handleEditTask }) {
 
     const dispatch = useDispatch();
+
+    const SortType = useSelector(sortType);
+
+    const [showTaskCompleted, setShowTaskCompleted] = useState(false);
 
     const [list, setList] = useState(data);
 
@@ -24,13 +30,21 @@ function DragNDrop({ data, handleEditTask }) {
 
     useEffect(() => {
         const itemCurrent = dragItem.current;
-        if (itemCurrent && list[itemCurrent.grpI].items[itemCurrent.itemI].status !== taskChange.task.status) {
-            console.log(dragItem.current)
-            axiosCLient.put(`/list-task/${taskChange.id}.json`, taskChange.task)
-                .then((res) => console.log(res))
-                .catch((err) => console.log(err))
+        if (itemCurrent) {
+            const newTask = {
+                title: taskChange.title,
+                status: taskChange.status,
+                description: taskChange.description,
+                priority: taskChange.priority,
+                deadline: taskChange.deadline
+            }
+            dispatch(updateTask({ id: taskChange.id, task: newTask }));
         }
-    }, [taskChange, list])
+    }, [taskChange, list, dispatch])
+
+    const changeShowTaskCompleted = () => {
+        setShowTaskCompleted(!showTaskCompleted);
+    }
 
     const handleDragStart = (e, params) => {
         dragItem.current = params;
@@ -47,12 +61,12 @@ function DragNDrop({ data, handleEditTask }) {
             setList(oldList => {
                 let newList = JSON.parse(JSON.stringify(oldList));
                 const TaskChange = newList[currentItem.grpI].items.splice(currentItem.itemI, 1)[0];
-                TaskChange.task.status = newList[params.grpI].title;
-                setTaskChange(TaskChange);
+                TaskChange.status = newList[params.grpI].title;
                 newList[params.grpI].items.splice(params.itemI, 0, TaskChange);
                 dragItem.current = params;
+                setTaskChange(TaskChange);
                 return newList;
-            })
+            });
         }
     }
 
@@ -72,17 +86,26 @@ function DragNDrop({ data, handleEditTask }) {
 
     }
 
-    const handleDoneTask = (e, params) => {
+    const DoneTask = (e, params) => {
         setList(oldList => {
+
             let newList = JSON.parse(JSON.stringify(oldList));
-            newList[params.grpI].items[params.itemI].task.status = "done";
+            newList[params.grpI].items[params.itemI].status = "done";
             const taskDone = newList[params.grpI].items.splice(params.itemI, 1)[0];
             newList[4].items.unshift(taskDone);
+            const newTask = {
+                title: taskDone.title,
+                status: taskDone.status,
+                description: taskDone.description,
+                priority: taskDone.priority,
+                deadline: taskDone.deadline
+            }
+            dispatch(updateTask({ id: taskDone.id, task: newTask }));
             return newList;
         })
     }
 
-    const handleDetailsFeatures = (params) => {
+    const DetailsFeatures = (params) => {
         const newOption = `${params.grpI}-${params.itemI}`
         if (details.length > 0 && details === newOption)
             setDetails('');
@@ -114,73 +137,153 @@ function DragNDrop({ data, handleEditTask }) {
                     swal("Poof! Your task has been deleted!", {
                         icon: "success",
                     });
-                    axiosCLient.delete(`/list-task/${item.id}.json`)
-                        .then(() => console.log('oke'))
-                        .catch(() => console.log('err'))
+                    dispatch(deleteTask(item.id));
                 }
             });
     }
 
-    return (
-        <div className='list-task'>
-            {
-                list.length > 0 && list.map((grp, grpI) => (
-                    <div
-                        className='list-task__group'
-                        key={grpI}
-                        onDragEnter={dragging && !grp.items.length ? (e) => handleDragEnter(e, { grpI, itemI: 0 }) : null}
-                    >
-                        <h2 className='list-task__group__title'>{grp.title}</h2>
-                        {
-                            grp.items.map((item, itemI) => (
-                                <div
-                                    draggable
-                                    onDragStart={(e) => { handleDragStart(e, { grpI, itemI }) }}
-                                    onDragEnter={dragging ? (e) => { handleDragEnter(e, { grpI, itemI }) } : null}
-                                    className={`shadow px-3 cursor-pointer py-1 hover:scale-105 flex flex-col justify-around ${dragging ? getStyle({ grpI, itemI }) : 'list-task__group__item'}`}
-                                    key={itemI}
-                                    title='Task details'
-                                >
-                                    <div className='flex items-center'>
-                                        <input
-                                            type="checkbox"
-                                            className='h-6 mr-2 rounded-xl cursor-pointer'
-                                            checked={item.task.status === 'done'}
-                                            disabled={item.task.status === 'done'}
-                                            onChange={(e) => handleDoneTask(e, { grpI, itemI })}
-                                        />
-                                        <p className='capitalize font-medium'>{item.task.title}</p>
-                                        <div className='relative px-1 ml-auto border border-gray-300 rounded-md transition duration-150shadow cursor-pointer'>
-                                            <i className="fas fa-ellipsis-h text-gray-400" onClick={() => handleDetailsFeatures({ grpI, itemI })}></i>
-                                            {
-                                                (details === `${grpI}-${itemI}`) &&
-                                                <div className="absolute top-8 z-10 w-24 right-0 rounded shadow-lg bg-white ring-1 focus:outline-none">
-                                                    <div className="divide-y divide-fuchsia-300">
-                                                        <p className="text-gray-700 block px-2 py-1 hover:bg-blue-400 hover:text-white transition duration-150 ease-in-out cursor-pointer"
-                                                            onClick={() => EditTask(item)}
-                                                        >Edit
-                                                        </p>
-                                                        <p className="text-gray-700 block px-2 py-1 hover:bg-blue-400 hover:text-white transition duration-150 ease-in-out cursor-pointer"
-                                                            onClick={() => DeleteTask(item, { grpI, itemI })}
-                                                        >Delete</p>
-                                                    </div>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                    <p className='text-sm text-gray-500 text-truncate'>{item.task.description}</p>
-                                    <div className='flex items-center gap-2'>
-                                        <button className={`btn-status ${item.task.status.replace(/ /g, "")}`}>{item.task.status}</button>
-                                        <button className={`btn-status ${item.task.priority}`}>{item.task.priority}</button>
-                                    </div>
+    const sortTask = (type, listTask) => {
 
-                                    <p className=' text-sm text-gray-400'>Deadline: {item.task.deadline}</p>
-                                </div>
-                            ))
-                        }
-                    </div>
-                ))
-            }
+        if (type === "title")
+            listTask = sortTaskByTitle(listTask);
+
+        if (type === "priority")
+            listTask = sortTaskByPriority(listTask);
+
+        if (type === "deadline")
+            listTask = sortTaskByDeadline(listTask);
+
+        return listTask;
+    }
+
+    const sortTaskByTitle = (listTask) => {
+        return listTask.map((tasks) => {
+            tasks.items.sort(function (a, b) {
+                let titleA = a.title.toUpperCase();
+                let titleB = b.title.toUpperCase();
+                if (titleA < titleB) {
+                    return -1;
+                }
+                if (titleA > titleB) {
+                    return 1;
+                }
+                return 0;
+            });
+            return tasks;
+        })
+    }
+
+    const sortTaskByPriority = (listTask) => {
+        return listTask.map((tasks) => {
+            tasks.items.sort(function (a, b) {
+                let priorityA = a.priority;
+                let priorityB = b.priority;
+                if (priorityA < priorityB) {
+                    return -1;
+                }
+                if (priorityA > priorityB) {
+                    return 1;
+                }
+                return 0;
+            });
+            return tasks;
+        })
+    }
+
+    const sortTaskByDeadline = (listTask) => {
+        return listTask.map((tasks) => {
+            tasks.items.sort(function (a, b) {
+                let deadlineA = a.deadline;
+                let deadlineB = b.deadline;
+                if (deadlineA < deadlineB) {
+                    return -1;
+                }
+                if (deadlineA > deadlineB) {
+                    return 1;
+                }
+                return 0;
+            });
+            return tasks;
+        })
+    }
+
+    return (
+        <div>
+            <div className='ml-auto'>
+                <label className="relative right-0 inline-flex items-center mb-2 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        className="form-checkbox h-4 w-4 cursor-pointer"
+                        checked={!showTaskCompleted}
+                        onChange={() => changeShowTaskCompleted()}
+                    />
+                    <span className="ml-2 text-base">Incompleted task only</span>
+                </label>
+            </div>
+
+
+            <div className='list-task'>
+
+
+                {
+                    sortTask(SortType, list).length > 0 && list.map((grp, grpI) => (
+                        <div
+                            className={`list-task__group ${(grpI === 4 && !showTaskCompleted) ? 'hidden' : ''}`}
+                            key={grpI}
+                            onDragEnter={dragging && !grp.items.length ? (e) => handleDragEnter(e, { grpI, itemI: 0 }) : null}
+                        >
+                            <h2 className='list-task__group__title'>{grp.title}</h2>
+                            {
+                                grp.items.map((item, itemI) => (
+                                    <div
+                                        draggable
+                                        onDragStart={(e) => { handleDragStart(e, { grpI, itemI }) }}
+                                        onDragEnter={dragging ? (e) => { handleDragEnter(e, { grpI, itemI }) } : null}
+                                        className={`shadow px-3 cursor-pointer py-1 hover:scale-105 flex flex-col justify-around ${dragging ? getStyle({ grpI, itemI }) : 'list-task__group__item'}`}
+                                        key={itemI}
+                                        title='Task details'
+                                    >
+                                        <div className='flex items-center'>
+                                            <input
+                                                type="checkbox"
+                                                className='h-6 mr-2 rounded-xl cursor-pointer'
+                                                checked={item.status === 'done'}
+                                                disabled={item.status === 'done'}
+                                                onChange={(e) => DoneTask(e, { grpI, itemI })}
+                                            />
+                                            <p className='capitalize font-medium title mr-1'>{item.title}</p>
+                                            <div className='relative px-1 ml-auto border border-gray-300 rounded-md transition duration-150shadow cursor-pointer'>
+                                                <i className="fas fa-ellipsis-h text-gray-400" onClick={() => DetailsFeatures({ grpI, itemI })}></i>
+                                                {
+                                                    (details === `${grpI}-${itemI}`) &&
+                                                    <div className="absolute top-8 z-10 w-24 right-0 rounded shadow-lg bg-white ring-1 focus:outline-none">
+                                                        <div className="divide-y divide-fuchsia-300">
+                                                            <p className="text-gray-700 block px-2 py-1 hover:bg-blue-400 hover:text-white transition duration-150 ease-in-out cursor-pointer"
+                                                                onClick={() => EditTask(item)}
+                                                            >Edit
+                                                            </p>
+                                                            <p className="text-gray-700 block px-2 py-1 hover:bg-blue-400 hover:text-white transition duration-150 ease-in-out cursor-pointer"
+                                                                onClick={() => DeleteTask(item, { grpI, itemI })}
+                                                            >Delete</p>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <p className='text-sm text-gray-500 description'>{item.description}</p>
+                                        <div className='flex items-center gap-2'>
+                                            <button className={`btn-status ${item.status.replace(/ /g, "")}`}>{item.status}</button>
+                                            <button className={`btn-status ${item.priority}`}>{item.priority}</button>
+                                        </div>
+
+                                        <p className=' text-sm text-gray-400'>Deadline: {item.deadline}</p>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    ))
+                }
+            </div>
         </div>
     );
 }

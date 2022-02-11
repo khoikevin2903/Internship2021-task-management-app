@@ -1,28 +1,18 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
-import axiosCLient from '../../../api/axiosClient';
 import { LIST_GROUP, LIST_PRIORITY } from '../constants/Option';
-// import swal from 'sweetalert'
+import moment from 'moment';
+import { useDispatch } from 'react-redux';
+import { addTask, updateTask } from '../reducers/taskReducers';
 
 function DialogCreate(props) {
 
-    const { isOpen, closeModal, task } = props;
+    const dispatch = useDispatch();
 
-    const [Task, setTask] = useState(task);
-
-    useEffect(() => {
-        if (typeof task !== "undefined") {
-            // setTask({
-            //     id: task ? Object.keys(task)[0] : "",
-            //     task: task ? Object.values(task)[0] : ""
-            // })
-            setTask(task);
-        }
-    }, [task])
+    const { isOpen, closeModal, data, EditTask } = props;
 
     const schema = yup.object().shape({
         title: yup.string().required(),
@@ -37,32 +27,40 @@ function DialogCreate(props) {
     });
 
     useEffect(() => {
-        if (typeof Task !== "undefined") {
-            setValue("title", Task.title);
-            setValue("priority", Task.priority);
-            setValue("status", Task.status);
-            setValue("deadline", Task.deadline);
-            setValue("description", Task.description);
+        if (typeof data !== "undefined" && data !== null) {
+            setValue("title", data.title);
+            setValue("priority", data.priority);
+            setValue("status", data.status);
+            setValue("deadline", data.deadline);
+            setValue("description", data.description);
         }
-    }, [Task, setValue])
+    }, [setValue, data])
 
     const CloseModal = () => {
         reset();
         closeModal();
     }
 
-    const submitFormLogin = (data) => {
-        const item =
-        {
-            title: 'marketing & sales 9',
-            description: 'Increase conversion on our landing page',
-            deadline: '2021-01-21',
-            priority: 'high',
-            status: 'done'
-
+    const submitFormLogin = async (task) => {
+        if (data.id) {
+            const newData = {
+                title: task.title,
+                description: task.description,
+                priority: task.priority,
+                status: task.status,
+                deadline: moment(task.deadline).format().substring(0, 10)
+            }
+            EditTask({ id: data.id, ...task });
+            dispatch(updateTask({ id: data.id, task: newData }));
+            setTimeout(() => closeModal(), 0);
+        } else {
+            const newData = {
+                ...task,
+                deadline: moment(task.deadline).format().substring(0, 10)
+            }
+            dispatch(addTask(newData));
+            setTimeout(() => closeModal(), 0);
         }
-
-        axiosCLient.post("/list-task.json", item)
     }
 
     return (
@@ -124,10 +122,10 @@ function DialogCreate(props) {
                                                     return (
                                                         <option
                                                             key={index}
-                                                            value={option}
+                                                            value={option.name}
                                                             className='capitalize'
                                                         >
-                                                            {option}
+                                                            {option.name}
                                                         </option>
                                                     )
                                                 })}
@@ -154,7 +152,6 @@ function DialogCreate(props) {
                                                 })}
                                             </select>
                                         </div>
-
 
                                         <div>
                                             <p className="font-medium mb-2">Deadline</p>
@@ -188,7 +185,7 @@ function DialogCreate(props) {
                                             type="submit"
                                             className="justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                                         >
-                                            {typeof music !== "undefined" ? "Save" : "Create Task"}
+                                            {(data && data.title.length > 0) ? "Save" : "Create Task"}
                                         </button>
                                     </div>
                                 </form>
