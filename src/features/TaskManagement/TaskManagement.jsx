@@ -7,7 +7,6 @@ import { fetchListTask, listTask } from './reducers/taskReducers';
 import './TaskManagement.scss';
 import { LIST_GROUP, LIST_PRIORITY } from './constants/Option';
 import moment from 'moment';
-import { changeSortType, sortType } from './reducers/sortTypeReducers';
 
 function TaskManagement(props) {
 
@@ -15,7 +14,7 @@ function TaskManagement(props) {
 
     const data = useSelector(listTask);
 
-    const SortType = useSelector(sortType);
+    const [sortType, setSortType] = useState('DEFAULT');
 
     const [ListTask, setListTask] = useState(data);
 
@@ -25,7 +24,7 @@ function TaskManagement(props) {
 
     useEffect(() => {
         dispatch(fetchListTask());
-    }, [dispatch, SortType])
+    }, [dispatch])
 
     useEffect(() => {
         setListTask(data);
@@ -53,11 +52,10 @@ function TaskManagement(props) {
     }
 
     const handleChangeSortBy = (e) => {
-        dispatch(changeSortType(e.target.value));
+        setSortType(e.target.value);
     }
 
     const EditTask = (item) => {
-        console.log(item)
         setListTask(oldList => {
             const newList = oldList.map(task => {
                 if (task.id === item.id) return item;
@@ -98,7 +96,73 @@ function TaskManagement(props) {
             return option;
         })
 
-        return newList;
+        return sortTask(sortType, newList);
+    }
+
+
+    const sortTask = (type, listTask) => {
+
+        if (type === "title")
+            listTask = sortTaskByTitle(listTask);
+
+        if (type === "priority")
+            listTask = sortTaskByPriority(listTask);
+
+        if (type === "deadline")
+            listTask = sortTaskByDeadline(listTask);
+
+        return listTask;
+    }
+
+    const sortTaskByTitle = (listTask) => {
+        return listTask.map((tasks) => {
+            tasks.items.sort(function (a, b) {
+                let titleA = a.title.toUpperCase();
+                let titleB = b.title.toUpperCase();
+                if (titleA < titleB) {
+                    return -1;
+                }
+                if (titleA > titleB) {
+                    return 1;
+                }
+                return 0;
+            });
+            return tasks;
+        })
+    }
+
+    const sortTaskByPriority = (listTask) => {
+        return listTask.map((tasks) => {
+            tasks.items.sort(function (a, b) {
+                let priorityA = a.priority;
+                let priorityB = b.priority;
+                if (priorityA < priorityB) {
+                    return -1;
+                }
+                if (priorityA > priorityB) {
+                    return 1;
+                }
+                return 0;
+            });
+            return tasks;
+        })
+    }
+
+    const sortTaskByDeadline = (listTask) => {
+        return listTask.map((tasks) => {
+            tasks.items.sort(function (a, b) {
+                let deadlineA = a.deadline;
+                let deadlineB = b.deadline;
+                if (deadlineA < deadlineB) {
+                    return -1;
+                }
+                if (deadlineA > deadlineB) {
+                    return 1;
+                }
+                return 0;
+            });
+            return tasks;
+        })
     }
 
     return (
@@ -109,7 +173,7 @@ function TaskManagement(props) {
                     <div>
                         <select
                             onChange={handleChangeSortBy}
-                            value={SortType}
+                            value={sortType}
                             className='cursor-pointer px-3 py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
                         >
                             <option value="DEFAULT" disabled>Sort by</option>
@@ -128,9 +192,9 @@ function TaskManagement(props) {
                 </div>
             </div>
             <div className='mt-3'>
-                <DragNDrop data={convertListTask()} handleEditTask={handleEditTask} />
+                <DragNDrop data={convertListTask()} handleEditTask={handleEditTask} sortType={sortType} />
             </div>
-            <DialogCreate isOpen={isOpen} closeModal={closeModal} data={task} EditTask={EditTask}/>
+            <DialogCreate isOpen={isOpen} closeModal={closeModal} data={task} EditTask={EditTask} />
         </div>
     );
 }

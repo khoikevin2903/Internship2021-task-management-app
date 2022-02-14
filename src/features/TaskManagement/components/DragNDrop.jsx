@@ -2,14 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import swal from 'sweetalert';
 import { deleteTask, updateTask } from '../reducers/taskReducers';
-import { useSelector } from 'react-redux';
-import { sortType } from '../reducers/sortTypeReducers';
 
 function DragNDrop({ data, handleEditTask }) {
 
     const dispatch = useDispatch();
-
-    const SortType = useSelector(sortType);
 
     const [showTaskCompleted, setShowTaskCompleted] = useState(false);
 
@@ -25,12 +21,11 @@ function DragNDrop({ data, handleEditTask }) {
     const dragNode = useRef();
 
     useEffect(() => {
-        setList(data);
+            setList(data);
     }, [data])
 
     useEffect(() => {
-        const itemCurrent = dragItem.current;
-        if (itemCurrent) {
+        if (dragItem.current) {
             const newTask = {
                 title: taskChange.title,
                 status: taskChange.status,
@@ -142,71 +137,6 @@ function DragNDrop({ data, handleEditTask }) {
             });
     }
 
-    const sortTask = (type, listTask) => {
-
-        if (type === "title")
-            listTask = sortTaskByTitle(listTask);
-
-        if (type === "priority")
-            listTask = sortTaskByPriority(listTask);
-
-        if (type === "deadline")
-            listTask = sortTaskByDeadline(listTask);
-
-        return listTask;
-    }
-
-    const sortTaskByTitle = (listTask) => {
-        return listTask.map((tasks) => {
-            tasks.items.sort(function (a, b) {
-                let titleA = a.title.toUpperCase();
-                let titleB = b.title.toUpperCase();
-                if (titleA < titleB) {
-                    return -1;
-                }
-                if (titleA > titleB) {
-                    return 1;
-                }
-                return 0;
-            });
-            return tasks;
-        })
-    }
-
-    const sortTaskByPriority = (listTask) => {
-        return listTask.map((tasks) => {
-            tasks.items.sort(function (a, b) {
-                let priorityA = a.priority;
-                let priorityB = b.priority;
-                if (priorityA < priorityB) {
-                    return -1;
-                }
-                if (priorityA > priorityB) {
-                    return 1;
-                }
-                return 0;
-            });
-            return tasks;
-        })
-    }
-
-    const sortTaskByDeadline = (listTask) => {
-        return listTask.map((tasks) => {
-            tasks.items.sort(function (a, b) {
-                let deadlineA = a.deadline;
-                let deadlineB = b.deadline;
-                if (deadlineA < deadlineB) {
-                    return -1;
-                }
-                if (deadlineA > deadlineB) {
-                    return 1;
-                }
-                return 0;
-            });
-            return tasks;
-        })
-    }
-
     return (
         <div>
             <div className='ml-auto'>
@@ -226,7 +156,7 @@ function DragNDrop({ data, handleEditTask }) {
 
 
                 {
-                    sortTask(SortType, list).length > 0 && list.map((grp, grpI) => (
+                    list.length > 0 && list.map((grp, grpI) => (
                         <div
                             className={`list-task__group ${(grpI === 4 && !showTaskCompleted) ? 'hidden' : ''}`}
                             key={grpI}

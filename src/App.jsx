@@ -6,7 +6,7 @@ function App() {
     return (
         <div>
             <Routes>
-                <Route path="/task-management" element={<TaskManagement />}></Route>
+                <Route path="/" element={<TaskManagement />}></Route>
             </Routes>
         </div>
     );

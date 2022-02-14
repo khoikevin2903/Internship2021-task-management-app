@@ -7,7 +7,6 @@ import {
     doc,
     updateDoc,
     deleteDoc,
-    orderBy,
 } from 'firebase/firestore';
 
 const initialState = [];
@@ -43,7 +42,6 @@ export const taskReducers = createSlice({
 
             .addCase(fetchListTask.fulfilled, (state, action) => {
                 state = action.payload;
-                console.log(action.payload);
                 return state;
             })
 
