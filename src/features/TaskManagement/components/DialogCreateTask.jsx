@@ -79,8 +79,8 @@ function DialogCreate(props) {
                     onClose={closeModal}
                 >
                     <div className="h-screen w-full">
-                        <div className="grid grid-cols-dialogLayout h-full bg-white overflow-auto">
-                            <div className="relative flex w-full">
+                        <div className="grid grid-cols-dialogLayout h-full bg-white overflow-auto dialog">
+                            <div className="relative flex w-full image">
                                 <div className="w-full h-full absolute bg-black opacity-30">
                                 </div>
                                 <img
@@ -89,7 +89,7 @@ function DialogCreate(props) {
                                     alt="" />
                             </div>
 
-                            <div className="absolute right-10 top-4 text-gray-600 cursor-pointer hover:text-gray-800 transition duration-300 ease-in-out text-xl"
+                            <div className="btn-close absolute right-10 top-4 text-gray-600 cursor-pointer hover:text-gray-800 transition duration-300 ease-in-out text-xl"
                                 onClick={CloseModal}
                             >
                                 <i className="fas fa-times"> </i>
@@ -97,18 +97,18 @@ function DialogCreate(props) {
 
                             <div className="">
                                 <form
-                                    className="py-10 px-10 shadow max-w-2xl mx-auto mt-20 xl:max-w-3xl"
+                                    className="py-10 px-10 shadow max-w-2xl mx-auto mt-20 xl:max-w-3xl form-task"
                                     onSubmit={handleSubmit(submitFormLogin)}
                                 >
 
                                     <Dialog.Title
                                         as="h3"
-                                        className="text-2xl font-medium leading-6 text-gray-900 text-center"
+                                        className="text-2xl font-medium leading-6 text-gray-900 text-center content"
                                     >
                                         Please fill in the details of the task you want to create
                                     </Dialog.Title>
 
-                                    <div className="mt-10">
+                                    <div className="mt-10 title">
                                         <p className="font-medium mb-2">Title</p>
                                         <input className="focus:ring-indigo-500 focus:border focus:border-indigo-500 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
                                             placeholder="Enter the title"
@@ -118,7 +118,7 @@ function DialogCreate(props) {
                                         {errors.title && <span className="text-sm text-red-600 ml-2 tracking-tighter font-semibold">{errors.title.message}</span>}
                                     </div>
 
-                                    <div className="mt-6 grid grid-cols-3 gap-2 xl:gap-4">
+                                    <div className="mt-6 grid grid-cols-3 gap-2 xl:gap-4 select-value">
                                         <div>
                                             <p className="font-medium mb-2">Priority</p>
                                             <select
@@ -172,7 +172,7 @@ function DialogCreate(props) {
                                     </div>
 
 
-                                    <div className='mt-6'>
+                                    <div className='mt-6 description'>
                                         <p className="font-medium mb-2">Description</p>
                                         <textarea
                                             {...register("description", { onChange: () => setErr(false) })}

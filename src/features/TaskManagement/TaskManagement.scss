@@ -132,3 +132,51 @@
         scrollbar-width: none; /* Firefox */
     }
 }
+
+@media screen and(max-width: 1080px) {
+    .dialog {
+        grid-template-columns: 1fr;
+
+        .image {
+            display: none;
+        }
+    }
+}
+
+@media screen and(max-width: 600px) {
+    .dialog {
+        .btn-close {
+            right: 15px;
+            top: 5px;
+        }
+
+        .form-task {
+            margin-top: 0;
+            height: 100%;
+
+            .content {
+                font-size: 20px;
+            }
+
+            .title {
+                margin-top: 10px;
+            }
+            div p {
+                margin-bottom: 4px;
+            }
+
+            .select-value {
+                display: block;
+                margin-top: 8px;
+
+                div {
+                    margin-top: 8px;
+                }
+            }
+
+            .description {
+                margin-top: 8px;
+            }
+        }
+    }
+}
