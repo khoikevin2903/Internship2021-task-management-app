@@ -44,6 +44,7 @@ function DialogCreate(props) {
     }
 
     const submitFormLogin = async (task) => {
+        console.log(task)
         if (task.title.trim().length > 0 && task.description.trim().length > 0) {
             const today = moment(Date.now()).format().substring(0, 10);
             if (task.deadline < today) task.status = "delayed";

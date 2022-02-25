@@ -100,20 +100,21 @@ function TaskManagement(props) {
                     option.items.unshift(task);
                 }
             }
-            if (option.items.length > 0) {
-                option.items.map(item => {
+            return {
+                ...option,
+                items: option.items.map(item => {
+                    let value;
                     for (const option of LIST_PRIORITY) {
                         if (item.priority === option.name) {
-                            return { ...item, priority: option.value }
+                            value = option.value;
+                            break;
                         }
                     }
-
-                    return item;
+                    const newItem = { ...item, priority_value: value }
+                    return newItem;
                 })
-
             }
 
-            return option;
         })
 
         return sortTask(sortType, newList);
@@ -161,8 +162,8 @@ function TaskManagement(props) {
     const sortTaskByPriority = (listTask) => {
         return listTask.map((tasks) => {
             tasks.items.sort(function (a, b) {
-                let priorityA = a.priority;
-                let priorityB = b.priority;
+                let priorityA = a.priority_value;
+                let priorityB = b.priority_value;
                 if (priorityA < priorityB) {
                     return -1;
                 }

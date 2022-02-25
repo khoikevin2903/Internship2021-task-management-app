@@ -7,7 +7,9 @@ function DragNDrop({ data, handleEditTask }) {
 
     const dispatch = useDispatch();
 
-    const [showTaskCompleted, setShowTaskCompleted] = useState(true);
+    console.log(data)
+
+    const [showTaskCompleted, setShowTaskCompleted] = useState(false);
 
     const [list, setList] = useState(data);
 
