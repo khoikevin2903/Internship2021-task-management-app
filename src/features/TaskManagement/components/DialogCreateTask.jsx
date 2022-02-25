@@ -14,11 +14,13 @@ function DialogCreate(props) {
 
     const { isOpen, closeModal, data, EditTask } = props;
 
+    const [err, setErr] = useState(false);
+
     const schema = yup.object().shape({
         title: yup.string().required(),
         priority: yup.string().required(),
         status: yup.string().required(),
-        deadline: yup.string().required(),
+        deadline: yup.date().required().min("2020-01-01").max("2100-01-01"),
         description: yup.string().required(),
     }).required();
 
@@ -42,25 +44,30 @@ function DialogCreate(props) {
     }
 
     const submitFormLogin = async (task) => {
-        if (data.id) {
-            const newData = {
-                title: task.title,
-                description: task.description,
-                priority: task.priority,
-                status: task.status,
-                deadline: moment(task.deadline).format().substring(0, 10)
+        if (task.title.trim().length > 0 && task.description.trim().length > 0) {
+            const today = moment(Date.now()).format().substring(0, 10);
+            if (task.deadline < today) task.status = "delayed";
+            if (data.id) {
+                const newData = {
+                    title: task.title,
+                    description: task.description,
+                    priority: task.priority,
+                    status: task.status,
+                    deadline: moment(task.deadline).format().substring(0, 10)
+                }
+                EditTask({ id: data.id, ...task, deadline: moment(task.deadline).format().substring(0, 10) });
+                dispatch(updateTask({ id: data.id, task: newData }));
+                setTimeout(() => closeModal(), 0);
+            } else {
+                const newData = {
+                    ...task,
+                    deadline: moment(task.deadline).format().substring(0, 10)
+                }
+                dispatch(addTask(newData));
+                setTimeout(() => closeModal(), 0);
             }
-            EditTask({ id: data.id, ...task });
-            dispatch(updateTask({ id: data.id, task: newData }));
-            setTimeout(() => closeModal(), 0);
-        } else {
-            const newData = {
-                ...task,
-                deadline: moment(task.deadline).format().substring(0, 10)
-            }
-            dispatch(addTask(newData));
-            setTimeout(() => closeModal(), 0);
-        }
+        } else setErr(true);
+
     }
 
     return (
@@ -106,7 +113,7 @@ function DialogCreate(props) {
                                         <input className="focus:ring-indigo-500 focus:border focus:border-indigo-500 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
                                             placeholder="Enter the title"
                                             type="text"
-                                            {...register("title")}
+                                            {...register("title", { onChange: () => setErr(false) })}
                                         />
                                         {errors.title && <span className="text-sm text-red-600 ml-2 tracking-tighter font-semibold">{errors.title.message}</span>}
                                     </div>
@@ -160,6 +167,7 @@ function DialogCreate(props) {
                                                 type="date"
                                                 className="cursor-pointer w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                                             />
+                                            {errors.deadline && <span className="text-sm text-red-600 ml-2 tracking-tighter font-semibold">Invalid deadline</span>}
                                         </div>
                                     </div>
 
@@ -167,11 +175,13 @@ function DialogCreate(props) {
                                     <div className='mt-6'>
                                         <p className="font-medium mb-2">Description</p>
                                         <textarea
-                                            {...register("description")}
+                                            {...register("description", { onChange: () => setErr(false) })}
                                             className='focus:ring-indigo-500 focus:border focus:border-indigo-500 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none'
                                             rows="4"
                                         ></textarea>
+                                        {errors.description && <span className="text-sm text-red-600 ml-2 tracking-tighter font-semibold">{errors.description.message}</span>}
                                     </div>
+                                    {err && <span className="text-sm text-red-600 ml-2 tracking-tighter font-semibold">Please check the information again</span>}
 
                                     <div className="mt-10 flex items-center justify-end">
                                         <button

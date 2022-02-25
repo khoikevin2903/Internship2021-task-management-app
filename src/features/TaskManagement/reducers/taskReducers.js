@@ -39,7 +39,6 @@ export const taskReducers = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-
             .addCase(fetchListTask.fulfilled, (state, action) => {
                 state = action.payload;
                 return state;

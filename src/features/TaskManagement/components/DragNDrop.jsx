@@ -7,7 +7,7 @@ function DragNDrop({ data, handleEditTask }) {
 
     const dispatch = useDispatch();
 
-    const [showTaskCompleted, setShowTaskCompleted] = useState(false);
+    const [showTaskCompleted, setShowTaskCompleted] = useState(true);
 
     const [list, setList] = useState(data);
 
@@ -17,11 +17,13 @@ function DragNDrop({ data, handleEditTask }) {
 
     const [details, setDetails] = useState('');
 
+    const [filter, setFilter] = useState("DEFAULT");
+
     const dragItem = useRef();
     const dragNode = useRef();
 
     useEffect(() => {
-            setList(data);
+        setList(data);
     }, [data])
 
     useEffect(() => {
@@ -38,6 +40,9 @@ function DragNDrop({ data, handleEditTask }) {
     }, [taskChange, list, dispatch])
 
     const changeShowTaskCompleted = () => {
+        if (parseInt(filter) === 4 && showTaskCompleted) {
+            setFilter(-1);
+        }
         setShowTaskCompleted(!showTaskCompleted);
     }
 
@@ -83,11 +88,17 @@ function DragNDrop({ data, handleEditTask }) {
 
     const DoneTask = (e, params) => {
         setList(oldList => {
-
             let newList = JSON.parse(JSON.stringify(oldList));
-            newList[params.grpI].items[params.itemI].status = "done";
-            const taskDone = newList[params.grpI].items.splice(params.itemI, 1)[0];
-            newList[4].items.unshift(taskDone);
+            let taskDone;
+            if (newList[params.grpI].items[params.itemI].status === 'done') {
+                newList[params.grpI].items[params.itemI].status = 'not started';
+                taskDone = newList[params.grpI].items.splice(params.itemI, 1)[0];
+                newList[0].items.unshift(taskDone);
+            } else {
+                newList[params.grpI].items[params.itemI].status = "done";
+                taskDone = newList[params.grpI].items.splice(params.itemI, 1)[0];
+                newList[4].items.unshift(taskDone);
+            }
             const newTask = {
                 title: taskDone.title,
                 status: taskDone.status,
@@ -137,9 +148,18 @@ function DragNDrop({ data, handleEditTask }) {
             });
     }
 
+    const ChangeFilter = (e) => {
+        if (!showTaskCompleted && parseInt(e.target.value) === 4) {
+            setFilter(e.target.value);
+            setShowTaskCompleted(!showTaskCompleted);
+        }
+        else setFilter(e.target.value);
+
+    }
+
     return (
         <div>
-            <div className='ml-auto'>
+            <div className='ml-auto flex justify-between mb-3'>
                 <label className="relative right-0 inline-flex items-center mb-2 cursor-pointer">
                     <input
                         type="checkbox"
@@ -149,6 +169,20 @@ function DragNDrop({ data, handleEditTask }) {
                     />
                     <span className="ml-2 text-base">Incompleted task only</span>
                 </label>
+
+                <select
+                    onChange={ChangeFilter}
+                    value={filter}
+                    className='cursor-pointer px-3 py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
+                >
+                    <option value="DEFAULT" disabled>Filter</option>
+                    <option value="-1">All</option>
+                    <option value="0">Not Started</option>
+                    <option value="1">Pending</option>
+                    <option value="2">In Progress</option>
+                    <option value="3">Delayed</option>
+                    <option value="4">Done</option>
+                </select>
             </div>
 
 
@@ -158,7 +192,9 @@ function DragNDrop({ data, handleEditTask }) {
                 {
                     list.length > 0 && list.map((grp, grpI) => (
                         <div
-                            className={`list-task__group ${(grpI === 4 && !showTaskCompleted) ? 'hidden' : ''}`}
+                            className={`list-task__group ${(grpI === 4 && !showTaskCompleted && filter !== 4) ? 'hidden' : ''} 
+                            ${(filter === "DEFAULT" || parseInt(filter) === -1 || parseInt(filter) === grpI) ? '' : 'opacity-30'}`
+                            }
                             key={grpI}
                             onDragEnter={dragging && !grp.items.length ? (e) => handleDragEnter(e, { grpI, itemI: 0 }) : null}
                         >
@@ -178,7 +214,6 @@ function DragNDrop({ data, handleEditTask }) {
                                                 type="checkbox"
                                                 className='h-6 mr-2 rounded-xl cursor-pointer'
                                                 checked={item.status === 'done'}
-                                                disabled={item.status === 'done'}
                                                 onChange={(e) => DoneTask(e, { grpI, itemI })}
                                             />
                                             <p className='capitalize font-medium title mr-1'>{item.title}</p>
@@ -203,7 +238,7 @@ function DragNDrop({ data, handleEditTask }) {
                                         <p className='text-sm text-gray-500 description'>{item.description}</p>
                                         <div className='flex items-center gap-2'>
                                             <button className={`btn-status ${item.status.replace(/ /g, "")}`}>{item.status}</button>
-                                            <button className={`btn-status ${item.priority}`}>{item.priority}</button>
+                                            <button className={`btn-priority ${item.priority}`}>{item.priority}</button>
                                         </div>
 
                                         <p className=' text-sm text-gray-400'>Deadline: {item.deadline}</p>

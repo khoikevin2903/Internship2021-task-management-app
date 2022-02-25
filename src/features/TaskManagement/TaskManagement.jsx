@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import DialogCreate from './components/DialogCreateTask';
 import DragNDrop from './components/DragNDrop';
-import { fetchListTask, listTask } from './reducers/taskReducers';
+import { fetchListTask, listTask, updateTask } from './reducers/taskReducers';
 import './TaskManagement.scss';
 import { LIST_GROUP, LIST_PRIORITY } from './constants/Option';
 import moment from 'moment';
@@ -15,6 +15,8 @@ function TaskManagement(props) {
     const data = useSelector(listTask);
 
     const [sortType, setSortType] = useState('DEFAULT');
+
+    const [optionSort, setOptionSort] = useState('ASC');
 
     const [ListTask, setListTask] = useState(data);
 
@@ -53,6 +55,7 @@ function TaskManagement(props) {
 
     const handleChangeSortBy = (e) => {
         setSortType(e.target.value);
+        if (e.target.value !== sortType) dispatch(fetchListTask());
     }
 
     const EditTask = (item) => {
@@ -66,6 +69,22 @@ function TaskManagement(props) {
         })
     }
 
+    const checkDeadlineTask = (task) => {
+        const today = moment(Date.now()).format().substring(0, 10);
+        if (task.deadline < today && task.status !== "done") {
+            const newTask = {
+                title: task.title,
+                description: task.description,
+                priority: task.priority,
+                status: "delayed",
+                deadline: task.deadline
+            }
+            dispatch(updateTask({ id: task.id, task: newTask }));
+            return { ...task, status: "delayed" };
+        }
+        return task;
+    }
+
     const convertListTask = () => {
         const newOption = LIST_GROUP.map(title => {
             return {
@@ -75,7 +94,8 @@ function TaskManagement(props) {
         });
 
         const newList = newOption.map((option, index) => {
-            for (const task of ListTask) {
+            for (let task of ListTask) {
+                task = checkDeadlineTask(task);
                 if (option.title === task.status) {
                     option.items.unshift(task);
                 }
@@ -110,7 +130,14 @@ function TaskManagement(props) {
 
         if (type === "deadline")
             listTask = sortTaskByDeadline(listTask);
-
+        if (optionSort === "DESC")
+            return listTask.map((tasks) => {
+                if (tasks.items.length > 0) {
+                    tasks.items.reverse();
+                    return tasks;
+                }
+                return tasks
+            });
         return listTask;
     }
 
@@ -180,6 +207,14 @@ function TaskManagement(props) {
                             <option value="title">Title</option>
                             <option value="priority">Priority</option>
                             <option value="deadline">Deadline</option>
+                        </select>
+                        <select
+                            onChange={(e) => setOptionSort(e.target.value)}
+                            value={optionSort}
+                            className='ml-2 cursor-pointer px-3 py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
+                        >
+                            <option value="ASC">ASC</option>
+                            <option value="DESC">DESC</option>
                         </select>
                         <button
                             onClick={openModal}

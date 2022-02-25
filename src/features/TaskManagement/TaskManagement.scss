@@ -69,19 +69,22 @@
             }
 
             .high {
-                color: orange;
+                background-color: orange;
+                opacity: 0.25;
             }
             .medium {
-                color: #c2c20c;
+                background-color: #c2c20c;
+                opacity: 0.7;
             }
             .critical {
-                color: red;
+                background-color: red;
             }
             .low {
-                color: green;
+                background-color: green;
             }
 
-            .btn-status {
+            .btn-status,
+            .btn-priority {
                 margin-top: 6px;
                 border-radius: 4px;
                 font-size: 0.8rem;
@@ -103,6 +106,11 @@
                 left: 0;
                 opacity: 0.25;
             }
+
+            .btn-priority {
+                color: white;
+            }
+
         }
 
         .current {
