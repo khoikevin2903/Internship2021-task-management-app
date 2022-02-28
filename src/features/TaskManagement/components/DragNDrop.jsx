@@ -3,11 +3,9 @@ import { useDispatch } from 'react-redux';
 import swal from 'sweetalert';
 import { deleteTask, updateTask } from '../reducers/taskReducers';
 
-function DragNDrop({ data, handleEditTask }) {
+function DragNDrop({ data, handleEditTask, showDetailTask }) {
 
     const dispatch = useDispatch();
-
-    console.log(data)
 
     const [showTaskCompleted, setShowTaskCompleted] = useState(false);
 
@@ -113,7 +111,8 @@ function DragNDrop({ data, handleEditTask }) {
         })
     }
 
-    const DetailsFeatures = (params) => {
+    const DetailFeatures = (e, params) => {
+        e.stopPropagation();
         const newOption = `${params.grpI}-${params.itemI}`
         if (details.length > 0 && details === newOption)
             setDetails('');
@@ -121,12 +120,14 @@ function DragNDrop({ data, handleEditTask }) {
             setDetails(newOption);
     }
 
-    const EditTask = (item) => {
+    const EditTask = (e, item) => {
+        e.stopPropagation();
         setDetails('');
         handleEditTask(item);
     }
 
-    const DeleteTask = (item, params) => {
+    const DeleteTask = (e, item, params) => {
+        e.stopPropagation();
         setDetails('');
         swal({
             title: "Are you sure?",
@@ -157,6 +158,10 @@ function DragNDrop({ data, handleEditTask }) {
         }
         else setFilter(e.target.value);
 
+    }
+
+    const DetailTask = (e, task) => {
+        showDetailTask(task);
     }
 
     return (
@@ -204,6 +209,7 @@ function DragNDrop({ data, handleEditTask }) {
                             {
                                 grp.items.map((item, itemI) => (
                                     <div
+                                        onClick={(e) => DetailTask(e, item)}
                                         draggable
                                         onDragStart={(e) => { handleDragStart(e, { grpI, itemI }) }}
                                         onDragEnter={dragging ? (e) => { handleDragEnter(e, { grpI, itemI }) } : null}
@@ -217,20 +223,21 @@ function DragNDrop({ data, handleEditTask }) {
                                                 className='h-6 mr-2 rounded-xl cursor-pointer'
                                                 checked={item.status === 'done'}
                                                 onChange={(e) => DoneTask(e, { grpI, itemI })}
+                                                onClick={e => e.stopPropagation()}
                                             />
                                             <p className='capitalize font-medium title mr-1'>{item.title}</p>
                                             <div className='relative px-1 ml-auto border border-gray-300 rounded-md transition duration-150shadow cursor-pointer'>
-                                                <i className="fas fa-ellipsis-h text-gray-400" onClick={() => DetailsFeatures({ grpI, itemI })}></i>
+                                                <i className="fas fa-ellipsis-h text-gray-400" onClick={(e) => DetailFeatures(e, { grpI, itemI })}></i>
                                                 {
                                                     (details === `${grpI}-${itemI}`) &&
                                                     <div className="absolute top-8 z-10 w-24 right-0 rounded shadow-lg bg-white ring-1 focus:outline-none">
                                                         <div className="divide-y divide-fuchsia-300">
                                                             <p className="text-gray-700 block px-2 py-1 hover:bg-blue-400 hover:text-white transition duration-150 ease-in-out cursor-pointer"
-                                                                onClick={() => EditTask(item)}
+                                                                onClick={(e) => EditTask(e, item)}
                                                             >Edit
                                                             </p>
                                                             <p className="text-gray-700 block px-2 py-1 hover:bg-blue-400 hover:text-white transition duration-150 ease-in-out cursor-pointer"
-                                                                onClick={() => DeleteTask(item, { grpI, itemI })}
+                                                                onClick={(e) => DeleteTask(e, item, { grpI, itemI })}
                                                             >Delete</p>
                                                         </div>
                                                     </div>

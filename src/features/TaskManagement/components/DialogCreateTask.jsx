@@ -12,7 +12,9 @@ function DialogCreate(props) {
 
     const dispatch = useDispatch();
 
-    const { isOpen, closeModal, data, EditTask } = props;
+    const { isOpen, closeModal, data, EditTask, checkEdit } = props;
+
+    const [edit, setEdit] = useState(checkEdit);
 
     const [err, setErr] = useState(false);
 
@@ -29,6 +31,10 @@ function DialogCreate(props) {
     });
 
     useEffect(() => {
+        setEdit(checkEdit);
+    }, [checkEdit])
+
+    useEffect(() => {
         if (typeof data !== "undefined" && data !== null) {
             setValue("title", data.title);
             setValue("priority", data.priority);
@@ -36,15 +42,19 @@ function DialogCreate(props) {
             setValue("deadline", data.deadline);
             setValue("description", data.description);
         }
-    }, [setValue, data])
+    }, [setValue, data, checkEdit])
 
     const CloseModal = () => {
         reset();
         closeModal();
     }
 
+    const handleEditTask = (e) => {
+        e.preventDefault();
+        setEdit(true);
+    }
+
     const submitFormLogin = async (task) => {
-        console.log(task)
         if (task.title.trim().length > 0 && task.description.trim().length > 0) {
             const today = moment(Date.now()).format().substring(0, 10);
             if (task.deadline < today) task.status = "delayed";
@@ -58,15 +68,14 @@ function DialogCreate(props) {
                 }
                 EditTask({ id: data.id, ...task, deadline: moment(task.deadline).format().substring(0, 10) });
                 dispatch(updateTask({ id: data.id, task: newData }));
-                setTimeout(() => closeModal(), 0);
             } else {
                 const newData = {
                     ...task,
                     deadline: moment(task.deadline).format().substring(0, 10)
                 }
                 dispatch(addTask(newData));
-                setTimeout(() => closeModal(), 0);
             }
+            setTimeout(() => closeModal(), 0);
         } else setErr(true);
 
     }
@@ -112,6 +121,7 @@ function DialogCreate(props) {
                                     <div className="mt-10 title">
                                         <p className="font-medium mb-2">Title</p>
                                         <input className="focus:ring-indigo-500 focus:border focus:border-indigo-500 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
+                                            disabled={!edit}
                                             placeholder="Enter the title"
                                             type="text"
                                             {...register("title", { onChange: () => setErr(false) })}
@@ -123,6 +133,7 @@ function DialogCreate(props) {
                                         <div>
                                             <p className="font-medium mb-2">Priority</p>
                                             <select
+                                                disabled={!edit}
                                                 {...register("priority")}
                                                 className='cursor-pointer capitalize px-3 w-full py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
                                             >
@@ -143,6 +154,7 @@ function DialogCreate(props) {
                                         <div>
                                             <p className="font-medium mb-2">Status</p>
                                             <select
+                                                disabled={!edit}
                                                 {...register("status")}
                                                 className='cursor-pointer capitalize w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
                                             >
@@ -164,6 +176,7 @@ function DialogCreate(props) {
                                         <div>
                                             <p className="font-medium mb-2">Deadline</p>
                                             <input
+                                                disabled={!edit}
                                                 {...register("deadline")}
                                                 type="date"
                                                 className="cursor-pointer w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
@@ -176,6 +189,7 @@ function DialogCreate(props) {
                                     <div className='mt-6 description'>
                                         <p className="font-medium mb-2">Description</p>
                                         <textarea
+                                            disabled={!edit}
                                             {...register("description", { onChange: () => setErr(false) })}
                                             className='focus:ring-indigo-500 focus:border focus:border-indigo-500 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none'
                                             rows="4"
@@ -183,22 +197,32 @@ function DialogCreate(props) {
                                         {errors.description && <span className="text-sm text-red-600 ml-2 tracking-tighter font-semibold">{errors.description.message}</span>}
                                     </div>
                                     {err && <span className="text-sm text-red-600 ml-2 tracking-tighter font-semibold">Please check the information again</span>}
+                                    {!edit ?
+                                        <div className="mt-10 flex items-center justify-end">
+                                            <button
+                                                onClick={handleEditTask}
+                                                className="justify-center px-6 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                            >
+                                                Edit
+                                            </button>
+                                        </div> :
+                                        <div className="mt-10 flex items-center justify-end">
+                                            <button
+                                                type="reset"
+                                                className="mr-4 justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                            >
+                                                Reset
+                                            </button>
 
-                                    <div className="mt-10 flex items-center justify-end">
-                                        <button
-                                            type="reset"
-                                            className="mr-4 justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-                                        >
-                                            Reset
-                                        </button>
+                                            <button
+                                                type="submit"
+                                                className="justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                            >
+                                                {(data && data.title.length > 0) ? "Save" : "Create Task"}
+                                            </button>
+                                        </div>
+                                    }
 
-                                        <button
-                                            type="submit"
-                                            className="justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-                                        >
-                                            {(data && data.title.length > 0) ? "Save" : "Create Task"}
-                                        </button>
-                                    </div>
                                 </form>
                             </div>
                         </div>

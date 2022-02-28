@@ -20,9 +20,11 @@ function TaskManagement(props) {
 
     const [ListTask, setListTask] = useState(data);
 
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(false);
 
     const [task, setTask] = useState();
+
+    const [checkEdit, setCheckEdit] = useState(true);
 
     useEffect(() => {
         dispatch(fetchListTask());
@@ -34,6 +36,7 @@ function TaskManagement(props) {
 
     const closeModal = () => {
         setIsOpen(false);
+        setCheckEdit(true);
         setTask();
     }
 
@@ -67,6 +70,12 @@ function TaskManagement(props) {
 
             return newList;
         })
+    }
+
+    const showDetailTask = (task) => {
+        setTask(task);
+        setCheckEdit(false);
+        setIsOpen(true);
     }
 
     const checkDeadlineTask = (task) => {
@@ -119,7 +128,6 @@ function TaskManagement(props) {
 
         return sortTask(sortType, newList);
     }
-
 
     const sortTask = (type, listTask) => {
 
@@ -228,9 +236,9 @@ function TaskManagement(props) {
                 </div>
             </div>
             <div className='mt-3'>
-                <DragNDrop data={convertListTask()} handleEditTask={handleEditTask} sortType={sortType} />
+                <DragNDrop data={convertListTask()} handleEditTask={handleEditTask} sortType={sortType} showDetailTask={showDetailTask} />
             </div>
-            <DialogCreate isOpen={isOpen} closeModal={closeModal} data={task} EditTask={EditTask} />
+            <DialogCreate isOpen={isOpen} closeModal={closeModal} data={task} EditTask={EditTask} checkEdit={checkEdit}/>
         </div>
     );
 }
