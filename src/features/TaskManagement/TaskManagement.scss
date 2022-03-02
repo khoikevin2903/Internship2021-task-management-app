@@ -109,7 +109,6 @@
             .btn-priority {
                 color: white;
             }
-
         }
 
         .current {
@@ -132,6 +131,18 @@
     }
 }
 
+@media screen and(max-width: 1280px) {
+    .task-board {
+        margin: 0px 10px;
+    }
+    .drapNdrop {
+        &__feature {
+            margin: 0px 10px;
+            margin-bottom: 10px;
+        }
+    }
+}
+
 @media screen and(max-width: 1080px) {
     .dialog {
         grid-template-columns: 1fr;
@@ -143,6 +154,20 @@
 }
 
 @media screen and(max-width: 600px) {
+    .task-board {
+        display: block;
+
+        &__title {
+            text-align: center;
+        }
+
+        &__feature {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
     .dialog {
         .btn-close {
             right: 15px;

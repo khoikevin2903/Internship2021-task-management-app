@@ -165,8 +165,8 @@ function DragNDrop({ data, handleEditTask, showDetailTask }) {
     }
 
     return (
-        <div>
-            <div className='ml-auto flex justify-between mb-3'>
+        <div className='drapNdrop'>
+            <div className='ml-auto flex justify-between mb-3 drapNdrop__feature'>
                 <label className="relative right-0 inline-flex items-center mb-2 cursor-pointer">
                     <input
                         type="checkbox"

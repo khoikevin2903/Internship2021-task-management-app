@@ -203,42 +203,40 @@ function TaskManagement(props) {
 
     return (
         <div className='max-w-screen-xl mx-auto relative'>
-            <div className='py-4 border-b border-gray-200 flex items-center justify-between'>
-                <h1 className='text-2xl font-medium'>Task Board</h1>
-                <div>
-                    <div>
-                        <select
-                            onChange={handleChangeSortBy}
-                            value={sortType}
-                            className='cursor-pointer px-3 py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
-                        >
-                            <option value="DEFAULT" disabled>Sort by</option>
-                            <option value="title">Title</option>
-                            <option value="priority">Priority</option>
-                            <option value="deadline">Deadline</option>
-                        </select>
-                        <select
-                            onChange={(e) => setOptionSort(e.target.value)}
-                            value={optionSort}
-                            className='ml-2 cursor-pointer px-3 py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
-                        >
-                            <option value="ASC">ASC</option>
-                            <option value="DESC">DESC</option>
-                        </select>
-                        <button
-                            onClick={openModal}
-                            className='py-1.5 ml-3 px-4 bg-blue-500 rounded text-white font-normal text-base transition ease-in-out duration-200 hover:opacity-75'
-                        >
-                            <i className="fas fa-plus mr-2"></i>
-                            <span>Add Task</span>
-                        </button>
-                    </div>
+            <div className='py-4 border-b border-gray-200 flex items-center justify-between task-board'>
+                <h1 className='text-2xl font-medium task-board__title'>Task Board</h1>
+                <div className='task-board__feature'>
+                    <select
+                        onChange={handleChangeSortBy}
+                        value={sortType}
+                        className='cursor-pointer px-3 py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
+                    >
+                        <option value="DEFAULT" disabled>Sort by</option>
+                        <option value="title">Title</option>
+                        <option value="priority">Priority</option>
+                        <option value="deadline">Deadline</option>
+                    </select>
+                    <select
+                        onChange={(e) => setOptionSort(e.target.value)}
+                        value={optionSort}
+                        className='ml-2 cursor-pointer px-3 py-1.5 text-base font-normal text-gray-700 bg-white border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none'
+                    >
+                        <option value="ASC">ASC</option>
+                        <option value="DESC">DESC</option>
+                    </select>
+                    <button
+                        onClick={openModal}
+                        className='py-1.5 ml-3 px-4 bg-blue-500 rounded text-white font-normal text-base transition ease-in-out duration-200 hover:opacity-75'
+                    >
+                        <i className="fas fa-plus mr-2"></i>
+                        <span>Add Task</span>
+                    </button>
                 </div>
             </div>
             <div className='mt-3'>
                 <DragNDrop data={convertListTask()} handleEditTask={handleEditTask} sortType={sortType} showDetailTask={showDetailTask} />
             </div>
-            <DialogCreate isOpen={isOpen} closeModal={closeModal} data={task} EditTask={EditTask} checkEdit={checkEdit}/>
+            <DialogCreate isOpen={isOpen} closeModal={closeModal} data={task} EditTask={EditTask} checkEdit={checkEdit} />
         </div>
     );
 }
