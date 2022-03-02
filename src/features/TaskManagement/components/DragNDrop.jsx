@@ -1,6 +1,8 @@
+import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import swal from 'sweetalert';
+import { LIST_GROUP } from '../constants/Option';
 import { deleteTask, updateTask } from '../reducers/taskReducers';
 
 function DragNDrop({ data, handleEditTask, showDetailTask }) {
@@ -91,10 +93,22 @@ function DragNDrop({ data, handleEditTask, showDetailTask }) {
             let newList = JSON.parse(JSON.stringify(oldList));
             let taskDone;
             if (newList[params.grpI].items[params.itemI].status === 'done') {
-                newList[params.grpI].items[params.itemI].status = 'not started';
+                const { previousStatus, deadline } = newList[params.grpI].items[params.itemI];
+                const today = moment(Date.now()).format().substring(0, 10);
+                newList[params.grpI].items[params.itemI].status = today > deadline ? "delayed" : previousStatus;
+                newList[params.grpI].items[params.itemI].previousStatus = today > deadline ? "delayed" : previousStatus;
                 taskDone = newList[params.grpI].items.splice(params.itemI, 1)[0];
-                newList[0].items.unshift(taskDone);
+                let index = 0;
+                for (const option of LIST_GROUP) {
+                    if (taskDone.previousStatus === option.name) {
+                        index = option.value;
+                        break;
+                    }
+                }
+                newList[index].items.unshift(taskDone);
             } else {
+                const { status } = newList[params.grpI].items[params.itemI];
+                newList[params.grpI].items[params.itemI].previousStatus = status;
                 newList[params.grpI].items[params.itemI].status = "done";
                 taskDone = newList[params.grpI].items.splice(params.itemI, 1)[0];
                 newList[4].items.unshift(taskDone);
@@ -102,6 +116,7 @@ function DragNDrop({ data, handleEditTask, showDetailTask }) {
             const newTask = {
                 title: taskDone.title,
                 status: taskDone.status,
+                previousStatus: taskDone.previousStatus,
                 description: taskDone.description,
                 priority: taskDone.priority,
                 deadline: taskDone.deadline

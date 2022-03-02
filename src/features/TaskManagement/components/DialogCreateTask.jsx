@@ -64,6 +64,7 @@ function DialogCreate(props) {
                     description: task.description,
                     priority: task.priority,
                     status: task.status,
+                    previousStatus: data.previousStatus,
                     deadline: moment(task.deadline).format().substring(0, 10)
                 }
                 EditTask({ id: data.id, ...task, deadline: moment(task.deadline).format().substring(0, 10) });
@@ -71,6 +72,7 @@ function DialogCreate(props) {
             } else {
                 const newData = {
                     ...task,
+                    previousStatus: task.previousStatus,
                     deadline: moment(task.deadline).format().substring(0, 10)
                 }
                 dispatch(addTask(newData));
@@ -162,10 +164,10 @@ function DialogCreate(props) {
                                                     return (
                                                         <option
                                                             key={index}
-                                                            value={option}
+                                                            value={option.name}
                                                             className='capitalize'
                                                         >
-                                                            {option}
+                                                            {option.name}
                                                         </option>
                                                     )
 

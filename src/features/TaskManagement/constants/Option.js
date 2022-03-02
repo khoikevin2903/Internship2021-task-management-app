@@ -1,4 +1,25 @@
-export const LIST_GROUP = ['not started', 'pending', 'in progress', 'delayed', 'done'];
+export const LIST_GROUP = [
+    {
+        name: 'not started',
+        value: 0,
+    },
+    {
+        name: 'pending',
+        value: 1,
+    },
+    {
+        name: 'in progress',
+        value: 2,
+    },
+    {
+        name: 'delayed',
+        value: 3,
+    },
+    {
+        name: 'done',
+        value: 4,
+    },
+];
 
 export const LIST_PRIORITY = [
     {

@@ -95,9 +95,9 @@ function TaskManagement(props) {
     }
 
     const convertListTask = () => {
-        const newOption = LIST_GROUP.map(title => {
+        const newOption = LIST_GROUP.map(option => {
             return {
-                title: title,
+                title: option.name,
                 items: []
             }
         });
