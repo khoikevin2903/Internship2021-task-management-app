@@ -215,7 +215,7 @@ function DragNDrop({ data, handleEditTask, showDetailTask }) {
                     list.length > 0 && list.map((grp, grpI) => (
                         <div
                             className={`list-task__group ${(grpI === 4 && !showTaskCompleted && filter !== 4) ? 'hidden' : ''} 
-                            ${(filter === "DEFAULT" || parseInt(filter) === -1 || parseInt(filter) === grpI) ? '' : 'opacity-30'}`
+                            ${(filter === "DEFAULT" || parseInt(filter) === -1 || parseInt(filter) === grpI) ? '' : 'hidden'}`
                             }
                             key={grpI}
                             onDragEnter={dragging && !grp.items.length ? (e) => handleDragEnter(e, { grpI, itemI: 0 }) : null}
